@@ -1,30 +1,33 @@
 function [A,B,D,tlaminate] = compute_matrices(layup,MaterialProperties)
-% Compute the A, B, and D matrices for a given layup (2-dimensional matrix
-% of material choices and fiber orientations) and material property table
+% Compute the A, B, and D matrices for a given layup (2-dimensional cell
+% array of material choices and fiber orientations, with the first row
+% corresponding to the bottom of the laminate) and material property table
 
 nplies = size(layup,1);
 tply = zeros(nplies,1);
+material = layup(:,1);
+theta = cell2mat(layup(:,2));
 
 R = [1 0 0; 0 1 0; 0 0 2];
 A = zeros(3);
 B = zeros(3);
 D = zeros(3);
 
-Qi = cell(nplies,1);
+Qi = zeros(3,3,nplies); % FIX: CHANGE TO MAKE THIS A 3D MATRIX, WITH EACH SLICE BEING A NEW Q MATRIX FOR THE NEW PLY
 
 for i = 1:nplies
     % Select the appropriate material property
-    material = layup(i,1);  % String corresponding to the RowName of the MaterialProperties table
-    theta = layup(i,2);     % Ply angle in degrees
+%     material = layup(i,1);  % String corresponding to the RowName of the MaterialProperties table
+%     theta = cell2mat(layup(i,2));     % Ply angle in degrees
     
     % Fill out current basic material properties in x1-x2 coordinates
-    E1 = MaterialProperties(material,'E1');
-    E2 = MaterialProperties(material,'E2');
-    G12 = MaterialProperties(material,'G12');
-    nu12 = MaterialProperties(material,'nu12');
-    nu23 = MaterialProperties(material,'nu23');
-    t = MaterialProperties(material,'t');
-    rho = MaterialProperties(material,'rho');
+    E1 = MaterialProperties.E1(material(i));
+    E2 = MaterialProperties.E2(material(i));
+    G12 = MaterialProperties.G12(material(i));
+    nu12 = MaterialProperties.nu12(material(i));
+    nu23 = MaterialProperties.nu23(material(i));
+    t = MaterialProperties.t(material(i));
+    rho = MaterialProperties.rho(material(i));
     
     % Calculate the remaining material properties
     nu13 = nu12;
@@ -47,11 +50,11 @@ for i = 1:nplies
                   S(1,2), S(2,2), S(2,6);
                   S(1,6), S(2,6), S(6,6)]);
     
-    T = [cosd(theta)^2,                      sind(theta)^2,       2*cosd(theta)*sind(theta);
-         sind(theta)^2,                      cosd(theta)^2,      -2*cosd(theta)*sind(theta);
-         -cosd(theta)*sind(theta), cosd(theta)*sind(theta), (cosd(theta)^2)-(sind(theta)^2)];
+    T = [cosd(theta(i))^2,                            sind(theta(i))^2,       2*cosd(theta(i))*sind(theta(i));
+         sind(theta(i))^2,                            cosd(theta(i))^2,      -2*cosd(theta(i))*sind(theta(i));
+         -cosd(theta(i))*sind(theta(i)), cosd(theta(i))*sind(theta(i)), (cosd(theta(i))^2)-(sind(theta(i))^2)];
     
-    Qi(i) = inv(T)*Qbasic*R*T*inv(R);
+    Qi(:,:,i) = inv(T)*Qbasic*R*T*inv(R);
 end
 
 tlaminate = sum(tply);
@@ -59,14 +62,18 @@ tlaminate = sum(tply);
 z = zeros(nplies+1,1);
 
 % Calculate the A, B, and D matrices
-for i = 0:nplies
-    z(i+1) = i*tply(i)-(tlaminate/2);
+for i = 2:length(z)
+    z(i) = sum(tply(1:i-1))-sum(tply(1:(nplies/2))); % WORKS ONLY FOR SYMMETRIC LAMINATES
 end
 
-for k = 1:nplies-1
-    A = A + Qi(k)*(z(k+1)-z(k));
-    B = B + (1/2)*Qi(k)*(z(k+1)^2 - z(k)^2);
-    D = D + (1/3)*Qi(k)*(z(k+1)^3 - z(k)^2);
+z(1) = z(1) - sum(tply(1:(nplies/2)));
+
+
+
+for k = 1:nplies % NOT SURE IF Qi indexing works yet
+    A = A + Qi(:,:,k)*(z(k+1)-z(k));
+    B = B + (1/2)*Qi(:,:,k)*(z(k+1)^2 - z(k)^2);
+    D = D + (1/3)*Qi(:,:,k)*(z(k+1)^3 - z(k)^3);
 end
 
 end
