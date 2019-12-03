@@ -1,4 +1,4 @@
-classdef gene
+classdef beamdesign
     properties
         nplies_f1       % Number of plies in the upper flange
         nplies_f2       % Number of plies in the lower flange
@@ -13,13 +13,22 @@ classdef gene
         b_f1            % Width (base length) of the upper flange
         b_f2            % Width (base length) of the lower flange
         h_w             % Height of the web
+        A_f1            % Area of upper flange
+        A_f2            % Area of lower flange
+        A_w             % Area of web
         A               % Area of the entire beam cross-section
         ybar            % Height from bottom of cross-section to neutral axis
+        d_f1            % Distance from neutral axis to centroid of upper flange
+        d_f2            % Distance from neutral axis to centroid of lower flange
+        d_w             % Distance from neutral axis to centroid of web
+        I_f1            % Area moment of inertia of upper flange
+        I_f2            % Area moment of inertia of lower flange
+        I_w             % Area moment of inertia of web
         I               % Beam cross-section area moment of inertia
     end
     
     methods
-        function obj = gene()
+        function obj = beamdesign()
             load('material_properties.mat');
             
             % Set the number of plies to be used in the flanges and the web
@@ -75,32 +84,32 @@ classdef gene
             obj.h_w = unifrnd(0.001,(0.2667-obj.t_f1-obj.t_f2));
             
             % Calculate cross-sectional area
-            Af1 = obj.b_f1*obj.t_f1;
-            Af2 = obj.b_f2*obj.t_f2;
-            Aw = obj.h_w*obj.t_w;
-            obj.A = Af1 + Af2 + Aw;
+            obj.A_f1 = obj.b_f1*obj.t_f1;
+            obj.A_f2 = obj.b_f2*obj.t_f2;
+            obj.A_w = obj.h_w*obj.t_w;
+            obj.A = obj.A_f1 + obj.A_f2 + obj.A_w;
             
             % Calculate position of neutral axis
             yf1 = obj.t_f1/2;
             yf2 = obj.t_f2/2;
             yw = obj.h_w/2;
             
-            sum = yf2*Af2;
-            sum = sum + (yf1 + obj.h_w + obj.t_f2)*Af1;
-            sum = sum + (yw + obj.t_f2)*Aw;
+            sum = yf2*obj.A_f2;
+            sum = sum + (yf1 + obj.h_w + obj.t_f2)*obj.A_f1;
+            sum = sum + (yw + obj.t_f2)*obj.A_w;
             obj.ybar = sum/obj.A;
             
             % Calculate area moment of inertia
-            df1 = yf1 + obj.h_w + obj.t_f2 - obj.ybar;
-            df2 = yf2 - obj.ybar;
-            dw = yw + obj.t_f2 - obj.ybar;
+            obj.d_f1 = yf1 + obj.h_w + obj.t_f2 - obj.ybar;
+            obj.d_f2 = yf2 - obj.ybar;
+            obj.d_w = yw + obj.t_f2 - obj.ybar;
             
             %Ix = (bh^3)/12
-            If1 = (obj.b_f1*obj.t_f1^3)/12;
-            If2 = (obj.b_f2*obj.t_f2^3)/12;
-            Iw = (obj.t_w*obj.h_w^3)/12;
+            obj.I_f1 = (obj.b_f1*obj.t_f1^3)/12;
+            obj.I_f2 = (obj.b_f2*obj.t_f2^3)/12;
+            obj.I_w = (obj.t_w*obj.h_w^3)/12;
             
-            obj.I = If1 + Af1*df1^2 + If2 + Af2*df2^2 + Iw + Aw*dw^2;
+            obj.I = obj.I_f1 + obj.A_f1*obj.d_f1^2 + obj.I_f2 + obj.A_f2*obj.d_f2^2 + obj.I_w + obj.A_w*obj.d_w^2;
             
         end
     end
@@ -131,7 +140,7 @@ function [layup] = random_layup(nplies,Properties_mat)
     % Load MaterialProperties table
     load(Properties_mat);
     
-    layup = cell(nplies,2);
+    layup = cell(nplies,4);
     
     % Define the allowable ply angles
     allowed_angles = [0 15 30 45 60 75 90 -15 -30 -45 -60 -75]';
@@ -153,11 +162,17 @@ function [layup] = random_layup(nplies,Properties_mat)
     symmaterials = datasample(MaterialProperties.Properties.RowNames,nsym);
     for i = 1:nsym
         layup(i,1) = symmaterials(i);
+        rowname = MaterialProperties.Properties.RowNames(layup(i,1));
+        layup(i,3) = {MaterialProperties.t(rowname)};
+        layup(i,4) = {MaterialProperties.rho(rowname)};
     end
     
     symmaterials = flip(symmaterials);
     for i = (nsym+1):nplies
         layup(i,1) = symmaterials(i-nsym);
+        rowname = MaterialProperties.Properties.RowNames(layup(i,1));
+        layup(i,3) = {MaterialProperties.t(rowname)};
+        layup(i,4) = {MaterialProperties.rho(rowname)};
     end
     
 end

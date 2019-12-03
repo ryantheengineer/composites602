@@ -1,4 +1,4 @@
-function [A,B,D,tlaminate] = compute_matrices(layup,MaterialProperties)
+function [A,B,D,alpha,beta,delta] = compute_matrices(layup,MaterialProperties)
 % Compute the A, B, and D matrices for a given layup (2-dimensional cell
 % array of material choices and fiber orientations, with the first row
 % corresponding to the bottom of the laminate) and material property table
@@ -53,7 +53,7 @@ for i = 1:nplies
     Qi(:,:,i) = inv(T)*Qbasic*R*T*inv(R);
 end
 
-tlaminate = sum(tply);
+% tlaminate = sum(tply);
 
 z = zeros(nplies+1,1);
 
@@ -69,5 +69,12 @@ for k = 1:nplies
     B = B + (1/2)*Qi(:,:,k)*(z(k+1)^2 - z(k)^2);
     D = D + (1/3)*Qi(:,:,k)*(z(k+1)^3 - z(k)^3);
 end
+
+ABD = [A, B; B, D];
+abd = inv(ABD);
+
+alpha = abd(1:3,1:3);
+beta = abd(1:3,4:6);
+delta = abd(4:6,4:6);
 
 end
