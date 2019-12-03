@@ -13,6 +13,9 @@ classdef gene
         b_f1            % Width (base length) of the upper flange
         b_f2            % Width (base length) of the lower flange
         h_w             % Height of the web
+        A               % Area of the entire beam cross-section
+        ybar            % Height from bottom of cross-section to neutral axis
+        I               % Beam cross-section area moment of inertia
     end
     
     methods
@@ -67,7 +70,37 @@ classdef gene
             % Generate continuous values for b_f1, b_f2, and h_w subject to
             % the maximum cross-section envelope and the previously
             % determined member thicknesses
+            obj.b_f1 = unifrnd(obj.t_w+0.001,0.5);
+            obj.b_f2 = unifrnd(obj.t_w+0.001,0.5);
+            obj.h_w = unifrnd(0.001,(0.2667-obj.t_f1-obj.t_f2));
             
+            % Calculate cross-sectional area
+            Af1 = obj.b_f1*obj.t_f1;
+            Af2 = obj.b_f2*obj.t_f2;
+            Aw = obj.h_w*obj.t_w;
+            obj.A = Af1 + Af2 + Aw;
+            
+            % Calculate position of neutral axis
+            yf1 = obj.t_f1/2;
+            yf2 = obj.t_f2/2;
+            yw = obj.h_w/2;
+            
+            sum = yf2*Af2;
+            sum = sum + (yf1 + obj.h_w + obj.t_f2)*Af1;
+            sum = sum + (yw + obj.t_f2)*Aw;
+            obj.ybar = sum/obj.A;
+            
+            % Calculate area moment of inertia
+            df1 = yf1 + obj.h_w + obj.t_f2 - obj.ybar;
+            df2 = yf2 - obj.ybar;
+            dw = yw + obj.t_f2 - obj.ybar;
+            
+            %Ix = (bh^3)/12
+            If1 = (obj.b_f1*obj.t_f1^3)/12;
+            If2 = (obj.b_f2*obj.t_f2^3)/12;
+            Iw = (obj.t_w*obj.h_w^3)/12;
+            
+            obj.I = If1 + Af1*df1^2 + If2 + Af2*df2^2 + Iw + Aw*dw^2;
             
         end
     end
