@@ -1,6 +1,9 @@
-function [fitness] = getFitness(beamdesign)
-% Fitness scoring function (maximin to deal with multiple objectives) to
-% determine how good a given design is, subject to the design constraints.
+function [fitnesses] = getFitness(beamdesign)
+% Fitness scoring function to determine how good a given design is, subject
+% to the design constraints. Outputs fitnesses, a vector of the individual
+% fitness measures of the objectives. This output is for a single design,
+% which can be fed into a maximin fitness function later for a more
+% comprehensive 
 
 load('material_properties.mat');
 
@@ -20,9 +23,13 @@ EI_f2 = get_bend_stiff(beamdesign.t_f2,delta_f2,beamdesign.I_f2,beamdesign.A_f2,
 EI_w = get_bend_stiff(beamdesign.t_w,delta_w,beamdesign.I_w,beamdesign.A_w,beamdesign.d_w);
 
 % Equivalent bending stiffness
-EI_eq_bend = (EI_f1 + EI_f2 + EI_w)/beamdesign.I;
+E_eq_bend = (EI_f1 + EI_f2 + EI_w)/beamdesign.I; % CHECK THIS
+c_f1 = beamdesign.t_f2 + beamdesign.h_w + beamdesign.t_f1 - beamdesign.ybar;
+c_f2 = beamdesign.ybar;
+c = max(c_f1,c_f2);
 
-% maxmoment = ; % Specified maximum moment ()
+maxmoment = max_bending_moment(E_eq_bend,c,beamdesign.I); % Calculate the maximum bending moment for the cross-section
+moment_objective = -maxmoment; % Make moment_objective negative for maximin fitness? Not sure if this is necessary
 
 %% Objective 2: Minimize weight
 section_weight = get_weight(beamdesign);
@@ -44,7 +51,7 @@ end
 
 
 %% LOCAL FUNCTIONS %%
-function [moment] = max_bending_moment(sigma,c,I)
+function [M] = max_bending_moment(sigma,c,I)
     M = sigma*I/c;
 end
 
