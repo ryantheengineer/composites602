@@ -1,0 +1,25 @@
+nplies_f1       % independent (even integer) DONE
+nplies_f2       % independent (even integer) DONE
+nplies_w        % independent (even integer) DONE
+nplies_same     % derived maximum, independent (set) minimum DONE
+layup_f1        % nplies_f1 independent values, derived size
+layup_f2        % nplies_f2 independent values, derived size
+layup_w         % nplies_w independent values, derived size
+t_f1            % derived
+t_f2            % derived
+t_w             % derived
+b_f1            % independent (blend crossover) DONE
+b_f2            % independent (blend crossover) DONE
+h_w             % independent (blend crossover) DONE
+A_f1            % derived
+A_f2            % derived
+A_w             % derived
+A               % derived
+ybar            % derived
+d_f1            % derived
+d_f2            % derived
+d_w             % derived
+I_f1            % derived
+I_f2            % derived
+I_w             % derived
+I               % derived

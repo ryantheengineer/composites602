@@ -39,6 +39,10 @@ weight_objective = get_weight(design.nplies_f1,design.nplies_f2,design.nplies_w,
 
 %% Objective 4: Crippling
 
+
+%% Objective 5: Fatigue
+
+
 %% Scale objectives to be on the same order of magnitude and combine into vector
 moment_scale = 1e6;
 weight_scale = 1e3;
