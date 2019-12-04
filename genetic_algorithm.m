@@ -7,7 +7,6 @@ for i = 1:population
     Parents(i) = beamdesign();
 end
 
-
 BestDesign = [];
 secondDesign = [];
 thirdDesign = [];
@@ -26,12 +25,12 @@ for currentGeneration = 1:generation
     
     %% BELOW HERE IS STILL THE OLD CODE FROM DOMINIOPT
     %Elitism
-    eliSet = [Parents,result, BestDesign,secondDesign,thirdDesign];
+    eliSet = [Parents,result,BestDesign,secondDesign,thirdDesign];
     for i = 1:length(eliSet)
-        Fitness(i) = getFitness(eliSet(i));
+        Fitness(i) = maximin(eliSet(i),eliSet);
     end
     keepSize = length(Parents);
-    [B,I] = maxk(Fitness,keepSize);
+    [B,I] = mink(Fitness,keepSize);
     for i = 1:keepSize
         Parents(i) = eliSet(I(i));
     end
@@ -48,6 +47,3 @@ for currentGeneration = 1:generation
 end
 value
 index
-
-disp('BEST STRATEGY:');
-interpret_gene(eliSet(index),cards);
