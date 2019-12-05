@@ -1,25 +1,21 @@
-function [A,B,D,tlaminate] = compute_matrices(layup,MaterialProperties)
+function [A,B,D,alpha,beta,delta] = compute_matrices(layup,MaterialProperties)
 % Compute the A, B, and D matrices for a given layup (2-dimensional cell
 % array of material choices and fiber orientations, with the first row
 % corresponding to the bottom of the laminate) and material property table
 
 nplies = size(layup,1);
 tply = zeros(nplies,1);
-material = layup(:,1);
-theta = cell2mat(layup(:,2));
+material = layup(:,1); % String corresponding to the RowName of the MaterialProperties table
+theta = cell2mat(layup(:,2)); % Ply angle in degrees
 
 R = [1 0 0; 0 1 0; 0 0 2];
 A = zeros(3);
 B = zeros(3);
 D = zeros(3);
 
-Qi = zeros(3,3,nplies); % FIX: CHANGE TO MAKE THIS A 3D MATRIX, WITH EACH SLICE BEING A NEW Q MATRIX FOR THE NEW PLY
+Qi = zeros(3,3,nplies);
 
 for i = 1:nplies
-    % Select the appropriate material property
-%     material = layup(i,1);  % String corresponding to the RowName of the MaterialProperties table
-%     theta = cell2mat(layup(i,2));     % Ply angle in degrees
-    
     % Fill out current basic material properties in x1-x2 coordinates
     E1 = MaterialProperties.E1(material(i));
     E2 = MaterialProperties.E2(material(i));
@@ -57,7 +53,7 @@ for i = 1:nplies
     Qi(:,:,i) = inv(T)*Qbasic*R*T*inv(R);
 end
 
-tlaminate = sum(tply);
+% tlaminate = sum(tply);
 
 z = zeros(nplies+1,1);
 
@@ -68,12 +64,17 @@ end
 
 z(1) = z(1) - sum(tply(1:(nplies/2)));
 
-
-
-for k = 1:nplies % NOT SURE IF Qi indexing works yet
+for k = 1:nplies
     A = A + Qi(:,:,k)*(z(k+1)-z(k));
     B = B + (1/2)*Qi(:,:,k)*(z(k+1)^2 - z(k)^2);
     D = D + (1/3)*Qi(:,:,k)*(z(k+1)^3 - z(k)^3);
 end
+
+ABD = [A, B; B, D];
+abd = inv(ABD);
+
+alpha = abd(1:3,1:3);
+beta = abd(1:3,4:6);
+delta = abd(4:6,4:6);
 
 end
