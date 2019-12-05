@@ -46,15 +46,27 @@ classdef beamdesign
             % Force the outer nplies_same layers to be the same across all
             % members, using layup_f1 as the model layup
             halfsame = obj.nplies_same/2;
+            f1_start = length(obj.layup_f1) - halfsame;
             
             obj.layup_f2(1:halfsame,:) = obj.layup_f1(1:halfsame,:);
             obj.layup_w(1:halfsame,:) = obj.layup_f1(1:halfsame,:);
             
-            f1_start = length(obj.layup_f1) - halfsame;
-            f2_start = length(obj.layup_f2) - halfsame;
-            w_start = length(obj.layup_w) - halfsame;
-            obj.layup_f2(f2_start:end,:) = obj.layup_f1(f1_start:end,:);
-            obj.layup_w(w_start:end,:) = obj.layup_f1(f1_start:end,:);
+            if obj.nplies_same==obj.nplies_f2
+                obj.layup_f2 = obj.layup_f1;
+                w_start = length(obj.layup_w) - halfsame;
+                obj.layup_w(w_start:end,:) = obj.layup_f1(f1_start:end,:);
+            elseif obj.nplies_same==obj.nplies_w
+                obj.layup_w = obj.layup_w;
+                f2_start = length(obj.layup_f2) - halfsame;
+                obj.layup_f2(f2_start:end,:) = obj.layup_f1(f1_start:end,:);
+            end
+                
+            
+%             f1_start = length(obj.layup_f1) - halfsame;
+%             f2_start = length(obj.layup_f2) - halfsame;
+%             w_start = length(obj.layup_w) - halfsame;
+%             obj.layup_f2(f2_start:end,:) = obj.layup_f1(f1_start:end,:);
+%             obj.layup_w(w_start:end,:) = obj.layup_f1(f1_start:end,:);
             
             % Add up the total thickness of each member
             obj.t_f1 = 0;
