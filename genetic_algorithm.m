@@ -1,6 +1,9 @@
 generation = 10;
 population = 10;
 numcompete = 2;
+beta = 1;   % Beta for mutation function
+
+load('material_properties.mat');
 
 % Generate initial parents
 for i = 1:population
@@ -15,11 +18,11 @@ for currentGeneration = 1:generation
     winners = tournament(Parents,numcompete);
     children = [];
     for i = 1:length(winners)/2
-        [child1,child2] = crossOver(winners(i),winners(i+1));
+        [child1,child2] = crossOver(winners(i),winners(i+1),MaterialProperties);
         children = [children,child1,child2];
     end
     for i = 1:length(children)
-        result(i) = mutate(children(i),currentGeneration,generation);
+        result(i) = mutate(children(i),currentGeneration,generation,beta);
     end
     
     
