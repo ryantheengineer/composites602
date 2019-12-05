@@ -42,14 +42,6 @@ else
     child2.nplies_same = child2_nplies_same;
 end
 
-
-%% Blend crossover for member length parameters
-% Decimal blend values for nplies parameters
-[child1.b_f1,child2.b_f1]   = blend_cross(parent1.b_f1,parent2.b_f1);
-[child1.b_f2,child2.b_f2]   = blend_cross(parent1.b_f2,parent2.b_f2);
-[child1.h_w,child2.h_w]     = blend_cross(parent1.h_w,parent2.h_w);
-
-
 %% Uniform crossover for layup parameters
 [c1_layup_f1,c1_layup_f2,c1_layup_w,c2_layup_f1,c2_layup_f2,c2_layup_w] = layup_crossover(parent1,parent2,child1,child2,crossThres);
 child1.layup_f1 = c1_layup_f1;
@@ -69,13 +61,60 @@ child2.t_f1 = t_f1;
 child2.t_f2 = t_f2;
 child2.t_w  = t_w;
 
+
+%% Blend crossover for member length parameters
+% Decimal blend values for nplies parameters
+[child1.b_f1,child2.b_f1]   = blend_cross(parent1.b_f1,parent2.b_f1);
+[child1.b_f2,child2.b_f2]   = blend_cross(parent1.b_f2,parent2.b_f2);
+[child1.h_w,child2.h_w]     = blend_cross(parent1.h_w,parent2.h_w);
+
 % Check that member length parameters are above minimums defined by member
 % thickness parameters, and if not reset them so they meet those minimums
+if child1.b_f1 < (child1.t_w + 0.001)
+    child1.b_f1 = child1.t_w + 0.001;
+end
 
+if child1.b_f2 > (child1.t_w + 0.001)
+    child1.b_f2 = child1.t_w + 0.001;
+end
+
+if child2.b_f1 < (child2.t_w + 0.001)
+    child2.b_f1 = child2.t_w + 0.001;
+end
+
+if child2.b_f2 > (child2.t_w + 0.001)
+    child2.b_f2 = child2.t_w + 0.001;
+end
 
 
 %% Derive remaining parameter values and set them in children
+[A_f1,A_f2,A_w,A,ybar,d_f1,d_f2,d_w,I_f1,I_f2,I_w,I] = derive_properties(child1);
+child1.A_f1 = A_f1;
+child1.A_f2 = A_f2;
+child1.A_w  = A_w;
+child1.A    = A;
+child1.ybar = ybar;
+child1.d_f1 = d_f1;
+child1.d_f2 = d_f2;
+child1.d_w  = d_w;
+child1.I_f1 = I_f1;
+child1.I_f2 = I_f2;
+child1.I_w  = I_w;
+child1.I    = I;
 
+[A_f1,A_f2,A_w,A,ybar,d_f1,d_f2,d_w,I_f1,I_f2,I_w,I] = derive_properties(child2);
+child2.A_f1 = A_f1;
+child2.A_f2 = A_f2;
+child2.A_w  = A_w;
+child2.A    = A;
+child2.ybar = ybar;
+child2.d_f1 = d_f1;
+child2.d_f2 = d_f2;
+child2.d_w  = d_w;
+child2.I_f1 = I_f1;
+child2.I_f2 = I_f2;
+child2.I_w  = I_w;
+child2.I    = I;
 
 
 end
@@ -459,5 +498,40 @@ elseif child2.nplies_same==child2.nplies_w
     f2_start = length(c2_layup_f2) - halfsame;
     c2_layup_f2(f2_start:end,:) = c2_layup_f1(f1_start:end,:);
 end
+
+end
+
+
+function [A_f1,A_f2,A_w,A,ybar,d_f1,d_f2,d_w,I_f1,I_f2,I_w,I] = derive_properties(child)
+% Derive remaining property values after independent parameters have been
+% set by the preceding code.
+
+% Calculate cross-sectional area
+A_f1 = child.b_f1*child.t_f1;
+A_f2 = child.b_f2*child.t_f2;
+A_w = child.h_w*child.t_w;
+A = A_f1 + A_f2 + A_w;
+
+% Calculate position of neutral axis
+yf1 = child.t_f1/2;
+yf2 = child.t_f2/2;
+yw = child.h_w/2;
+
+sum = yf2*A_f2;
+sum = sum + (yf1 + child.h_w + child.t_f2)*A_f1;
+sum = sum + (yw + child.t_f2)*A_w;
+ybar = sum/A;
+
+% Calculate area moment of inertia
+d_f1 = yf1 + child.h_w + child.t_f2 - ybar;
+d_f2 = yf2 - ybar;
+d_w = yw + child.t_f2 - ybar;
+
+%Ix = (bh^3)/12
+I_f1 = (child.b_f1*child.t_f1^3)/12;
+I_f2 = (child.b_f2*child.t_f2^3)/12;
+I_w = (child.t_w*child.h_w^3)/12;
+
+I = I_f1 + A_f1*d_f1^2 + I_f2 + A_f2*d_f2^2 + I_w + A_w*d_w^2;
 
 end
