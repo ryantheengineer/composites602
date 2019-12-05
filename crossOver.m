@@ -72,61 +72,7 @@ get_thicknesses(child2,MaterialProperties);
 
 
 
-%% DOMINIOPT CODE FROM HERE DOWN
-% uniform cross over for all binary representation
-numCards = length(parent1.gain_priority);
-if (rand < crossThres)
-    for i = 1:numCards
-        %second row of gain priority
-        if (rand <= 0.5)
-            temp = parent1.gain_priority(2,i);
-            parent1.gain_priority(2,i) = parent2.gain_priority(2,i);
-            parent2.gain_priority(2,i) = temp;
-        end
-    end
 end
-if (rand < crossThres)
-    for i = 1:numCards
-        % first row of gain_cutoffs
-        if (rand <= 0.5)
-            temp = parent1.gain_cutoffs(1,i);
-            parent1.gain_cutoffs(1,i) = parent2.gain_cutoffs(1,i);
-            parent2.gain_cutoffs(1,i) = temp;
-        end
-    end
-end
-if (rand < crossThres)
-    for i = 1:numCards
-        %second row of trash_priority
-        if (rand <= 0.5)
-            temp = parent1.trash_priority(2,i);
-            parent1.trash_priority(2,i) = parent2.trash_priority(2,i);
-            parent2.trash_priority(2,i) = temp;
-        end
-    end
-end
-% blend cross over at each column for other representation
-for i = 1:numCards
-    %second row of gain cutoffs
-    if (rand < crossThres)
-        r = rand;
-        x1 = parent1.gain_cutoffs(2,i);
-        x2 = parent2.gain_cutoffs(2,i);
-        parent1.gain_cutoffs(2,i) = r*x1+(1-r)*x2;
-        parent2.gain_cutoffs(2,i) = (1-r)*x1+r*x2;
-    end
-    % third row of gain cutoffs
-    if (rand < crossThres)
-        r = rand;
-        x1 = parent1.gain_cutoffs(3,i);
-        x2 = parent2.gain_cutoffs(3,i);
-        parent1.gain_cutoffs(3,i) = r*x1+(1-r)*x2;
-        parent2.gain_cutoffs(3,i) = (1-r)*x1+r*x2;
-    end
-end
-child1 = parent1;
-child2 = parent2;
-
 
 %% Local functions %%
 function [outval] = roundeven(inval)
@@ -179,32 +125,51 @@ function get_thicknesses(child,MaterialProperties)
 end
 
 
-function [child_layup] = layup_crossover(parent1,parent2,child,MaterialProperties)
+function layup_crossover(parent1,parent2,child1,child2,crossThres,MaterialProperties)
 % Function for mapping and crossing layup parameters (uniform crossover)
 
-%% 1. Create mapping of parent1 to child (this might be a function in itself)
+%% 1. Create mapping of parent1 to children (this might be a function in itself)
 % nplies_f1
-% Rescale parent to new nplies
-p1_nplies_f1 = parent1.nplies_f1;
-p1_nplies_f1_scaled = rescale(p1_nplies_f1);
-
-c_nplies_f1 = child.nplies_f1;
-c_nplies_f1_scaled = rescale(c_nplies_f1);
-
-for m = 1:length(p1_nplies_f1_scaled)
-    [~,ix] = min(abs(c_nplies_f1_scaled - p1_nplies_f1_scaled(m)));
-end
-% ix gives the index that should be used from p1_nplies_f1_scaled to map it
-% to the child (assuming I wrote that correctly)
+mapped_p1_c1_f1 = map_nplies_f1(parent1,child1);
+mapped_p1_c2_f1 = map_nplies_f1(parent1,child2);
 
 % nplies_f2
+mapped_p1_c1_f2 = map_nplies_f2(parent1,child1);
+mapped_p1_c2_f2 = map_nplies_f2(parent1,child2);
 
 % nplies_w
+mapped_p1_c1_w = map_nplies_w(parent1,child1);
+mapped_p1_c2_w = map_nplies_w(parent1,child2);
 
-% 2. Create mapping of parent2 to child
+%% 2. Create mapping of parent2 to children
+% nplies_f1
+mapped_p2_c1_f1 = map_nplies_f1(parent2,child1);
+mapped_p2_c2_f1 = map_nplies_f1(parent2,child2);
 
+% nplies_f2
+mapped_p2_c1_f2 = map_nplies_f2(parent2,child1);
+mapped_p2_c2_f2 = map_nplies_f2(parent2,child2);
 
-% 3. Uniform crossover between mapped parent1 and parent2 to child
+% nplies_w
+mapped_p2_c1_w = map_nplies_w(parent2,child1);
+mapped_p2_c2_w = map_nplies_w(parent2,child2);
+
+%% 3. Uniform crossover between mapped parent1 and parent2 to child
+child1.layup_f1 = cell(length(mapped_p1_c1_f1),4);
+child2.layup_f1 = cell(length(mapped_p1_c2_f1),4);
+child1.layup_f2 = cell(length(mapped_p1_c1_f2),4);
+child2.layup_f2 = cell(length(mapped_p1_c2_f2),4);
+child1.layup_w  = cell(length(mapped_p1_c1_w),4);
+child2.layup_w  = cell(length(mapped_p1_c2_w),4);
+
+randval = unifrnd(0,1,1,1);
+
+% Uniform crossover for material name and properties (thickness, density)
+if randval <= crossThres
+    child1.layup_f1 = cell(child1.nplies_f1,4);
+    
+    
+end
 
 
 % Match up columns 3 and 4 of the layup with their chosen materials
@@ -212,8 +177,5 @@ end
 
 
 % Apply nplies_same rule
-
-end
-
 
 end
