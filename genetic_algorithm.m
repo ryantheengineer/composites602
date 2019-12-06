@@ -1,4 +1,4 @@
-generation = 10;
+totalgeneration = 10;
 population = 10;
 numcompete = 2;
 beta = 1;   % Beta for mutation function
@@ -13,7 +13,7 @@ end
 BestDesign = [];
 secondDesign = [];
 thirdDesign = [];
-for currentGeneration = 1:generation
+for currentGeneration = 1:totalgeneration
     currentGeneration
     winners = tournament(Parents,numcompete);
     children = [];
@@ -22,7 +22,7 @@ for currentGeneration = 1:generation
         children = [children,child1,child2];
     end
     for i = 1:length(children)
-        result(i) = mutate(children(i),currentGeneration,generation,beta);
+        result(i) = mutate(children(i),currentGeneration,totalgeneration,beta,MaterialProperties);
     end
     
     
