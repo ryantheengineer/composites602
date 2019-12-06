@@ -46,47 +46,70 @@ classdef beamdesign
             % Force the outer nplies_same layers to be the same across all
             % members, using layup_f1 as the model layup
             halfsame = obj.nplies_same/2;
-            f1_start = length(obj.layup_f1) - halfsame;
+            layup_f1 = obj.layup_f1;
+            layup_f2 = obj.layup_f2;
+            layup_w  = obj.layup_w;
             
-            obj.layup_f2(1:halfsame,:) = obj.layup_f1(1:halfsame,:);
-            obj.layup_w(1:halfsame,:) = obj.layup_f1(1:halfsame,:);
+            layup_f2(1:halfsame,:) = layup_f1(1:halfsame,:);
+            layup_w(1:halfsame,:) = layup_f1(1:halfsame,:);
             
-            if obj.nplies_same==obj.nplies_f2
-                obj.layup_f2 = obj.layup_f1;
-                w_start = length(obj.layup_w) - halfsame;
-                obj.layup_w(w_start:end,:) = obj.layup_f1(f1_start:end,:);
-            elseif obj.nplies_same==obj.nplies_w
-                obj.layup_w = obj.layup_w;
-                f2_start = length(obj.layup_f2) - halfsame;
-                obj.layup_f2(f2_start:end,:) = obj.layup_f1(f1_start:end,:);
+            if obj.nplies_f2 == 2
+                layup_f2(2,:) = layup_f2(1,:);
+            else
+                layup_f2 = balance_layup(layup_f2);
             end
-                
+            
+            if obj.nplies_w == 2
+                layup_w(2,:) = layup_w(1,:);
+            else
+                layup_w = balance_layup(layup_w);
+            end
+
+            obj.layup_f2 = layup_f2;
+            obj.layup_w  = layup_w;
+            
             
 %             f1_start = length(obj.layup_f1) - halfsame;
-%             f2_start = length(obj.layup_f2) - halfsame;
-%             w_start = length(obj.layup_w) - halfsame;
-%             obj.layup_f2(f2_start:end,:) = obj.layup_f1(f1_start:end,:);
-%             obj.layup_w(w_start:end,:) = obj.layup_f1(f1_start:end,:);
+%             
+%             obj.layup_f2(1:halfsame,:) = obj.layup_f1(1:halfsame,:);
+%             obj.layup_w(1:halfsame,:) = obj.layup_f1(1:halfsame,:);
+%             
+%             if obj.nplies_same==obj.nplies_f2
+%                 obj.layup_f2 = obj.layup_f1;
+%                 w_start = length(obj.layup_w) - halfsame;
+%                 obj.layup_w(w_start:end,:) = obj.layup_f1(f1_start:end,:);
+%             elseif obj.nplies_same==obj.nplies_w
+%                 obj.layup_w = obj.layup_f1;
+%                 f2_start = length(obj.layup_f2) - halfsame;
+%                 obj.layup_f2(f2_start:end,:) = obj.layup_f1(f1_start:end,:);
+%             end
             
             % Add up the total thickness of each member
-            obj.t_f1 = 0;
-            obj.t_f2 = 0;
-            obj.t_w = 0;
+            [t_f1,t_f2,t_w] = get_thicknesses(obj,MaterialProperties);
             
-            for i = 1:obj.nplies_f1
-                rowname = MaterialProperties.Properties.RowNames(obj.layup_f1(i,1));
-                obj.t_f1 = obj.t_f1 + MaterialProperties.t(rowname);                
-            end
+            obj.t_f1 = t_f1;
+            obj.t_f2 = t_f2;
+            obj.t_w  = t_w;
             
-            for i = 1:obj.nplies_f2
-                rowname = MaterialProperties.Properties.RowNames(obj.layup_f2(i,1));
-                obj.t_f2 = obj.t_f2 + MaterialProperties.t(rowname);                
-            end
             
-            for i = 1:obj.nplies_w
-                rowname = MaterialProperties.Properties.RowNames(obj.layup_w(i,1));
-                obj.t_w = obj.t_w + MaterialProperties.t(rowname);                
-            end
+%             obj.t_f1 = 0;
+%             obj.t_f2 = 0;
+%             obj.t_w = 0;
+%             
+%             for i = 1:obj.nplies_f1
+%                 rowname = obj.layup_f1(i,1);
+%                 obj.t_f1 = obj.t_f1 + MaterialProperties.t(rowname);                
+%             end
+%             
+%             for i = 1:obj.nplies_f2
+%                 rowname = obj.layup_f2(i,1);
+%                 obj.t_f2 = obj.t_f2 + MaterialProperties.t(rowname);                
+%             end
+%             
+%             for i = 1:obj.nplies_w
+%                 rowname = obj.layup_w(i,1);
+%                 obj.t_w = obj.t_w + MaterialProperties.t(rowname);                
+%             end
             
             % Generate continuous values for b_f1, b_f2, and h_w subject to
             % the maximum cross-section envelope and the previously
@@ -161,7 +184,11 @@ function [layup] = random_layup(nplies,Properties_mat)
 
     % Create a symmetric vector of ply angle layup
     angles = zeros(nplies,1);
-    nsym = nplies/2;
+    if nplies > 2
+        nsym = nplies/2;
+    else
+        nsym = nplies;
+    end
     symplies = datasample(allowed_angles,nsym);
     for i = 1:nsym
         layup(i,2) = {symplies(i)};
@@ -189,4 +216,38 @@ function [layup] = random_layup(nplies,Properties_mat)
         layup(i,4) = {MaterialProperties.rho(rowname)};
     end
     
+end
+
+function [symmetric_layup] = balance_layup(layup)
+% Make a given layup symmetric
+    symmetric_layup = layup;
+    
+    nsym = size(layup,1)/2;
+    n = size(layup,1);
+    
+    symmetric_layup(nsym+1:n,:) = flip(layup(1:nsym,:));
+
+end
+
+
+function [t_f1,t_f2,t_w] = get_thicknesses(child,MaterialProperties)
+% Add up the total thickness of each member
+    t_f1 = 0;
+    t_f2 = 0;
+    t_w = 0;
+
+    for m = 1:child.nplies_f1
+        rowname = MaterialProperties.Properties.RowNames(child.layup_f1(m,1));
+        t_f1 = t_f1 + MaterialProperties.t(rowname);                
+    end
+
+    for m = 1:child.nplies_f2
+        rowname = MaterialProperties.Properties.RowNames(child.layup_f2(m,1));
+        t_f2 = t_f2 + MaterialProperties.t(rowname);                
+    end
+
+    for m = 1:child.nplies_w
+        rowname = MaterialProperties.Properties.RowNames(child.layup_w(m,1));
+        t_w = t_w + MaterialProperties.t(rowname);                
+    end
 end

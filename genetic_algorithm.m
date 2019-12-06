@@ -1,4 +1,4 @@
-generation = 10;
+totalgeneration = 10;
 population = 10;
 numcompete = 2;
 beta = 1;   % Beta for mutation function
@@ -13,7 +13,7 @@ end
 BestDesign = [];
 secondDesign = [];
 thirdDesign = [];
-for currentGeneration = 1:generation
+for currentGeneration = 1:totalgeneration
     currentGeneration
     winners = tournament(Parents,numcompete);
     children = [];
@@ -22,30 +22,29 @@ for currentGeneration = 1:generation
         children = [children,child1,child2];
     end
     for i = 1:length(children)
-        result(i) = mutate(children(i),currentGeneration,generation,beta);
+        result(i) = mutate(children(i),currentGeneration,totalgeneration,beta,MaterialProperties);
     end
     
     
-    %% BELOW HERE IS STILL THE OLD CODE FROM DOMINIOPT
     %Elitism
-    eliSet = [Parents,result,BestDesign,secondDesign,thirdDesign];
+    eliSet = [Parents,result];
     for i = 1:length(eliSet)
-        Fitness(i) = maximin(eliSet(i),eliSet);
+        FitnessOutputs(i) = maximin(i,eliSet);
     end
     keepSize = length(Parents);
-    [B,I] = mink(Fitness,keepSize);
+    [B,I] = mink(FitnessOutputs,keepSize);
     for i = 1:keepSize
         Parents(i) = eliSet(I(i));
     end
-    [value, index] = max(Fitness);
-    [scoreHistory(currentGeneration), ind] = max(Fitness); % Save the maximum score from each generation (what does ind do here?)
-    Fitness(ind) = -Inf;
-    [secondFitness, ind2] = max(Fitness);
-    Fitness(ind2) = -Inf;
-    [thirdFitness, ind3] = max(Fitness);
+    [value, index] = max(FitnessOutputs);
+    [scoreHistory(currentGeneration), ind] = min(FitnessOutputs); % Save the maximum score from each generation (what does ind do here?)
+%     FitnessOutputs(ind) = -Inf;
+%     [secondFitness, ind2] = max(FitnessOutputs);
+%     FitnessOutputs(ind2) = -Inf;
+%     [thirdFitness, ind3] = max(FitnessOutputs);
     BestDesign = eliSet(ind);
-    secondDesign = eliSet(ind2);
-    thirdDesign = eliSet(ind3);
+%     secondDesign = eliSet(ind2);
+%     thirdDesign = eliSet(ind3);
     playHistory(currentGeneration) = BestDesign;
 end
 value
