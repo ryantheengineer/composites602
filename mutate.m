@@ -140,11 +140,16 @@ mutated_child.h_w = basicmutate(mutated_child.h_w,xmin,xmax,alpha);
 
 
 %% 7. Derive remaining parameter values
-[A_f1,A_f2,A_w,A,ybar,d_f1,d_f2,d_w,I_f1,I_f2,I_w,I] = derive_properties(child);
+[t_f1,t_f2,t_w] = get_thicknesses(mutated_child,MaterialProperties);
+mutated_child.t_f1 = t_f1;
+mutated_child.t_f2 = t_f2;
+mutated_child.t_w  = t_w;
+
+[A_f1,A_f2,A_w,c_A,ybar,d_f1,d_f2,d_w,I_f1,I_f2,I_w,I] = derive_properties(mutated_child);
 mutated_child.A_f1 = A_f1;
 mutated_child.A_f2 = A_f2;
 mutated_child.A_w  = A_w;
-mutated_child.A    = A;
+mutated_child.A    = c_A;
 mutated_child.ybar = ybar;
 mutated_child.d_f1 = d_f1;
 mutated_child.d_f2 = d_f2;
@@ -345,4 +350,26 @@ function [A_f1,A_f2,A_w,A,ybar,d_f1,d_f2,d_w,I_f1,I_f2,I_w,I] = derive_propertie
 
     I = I_f1 + A_f1*d_f1^2 + I_f2 + A_f2*d_f2^2 + I_w + A_w*d_w^2;
 
+end
+
+function [t_f1,t_f2,t_w] = get_thicknesses(child,MaterialProperties)
+% Add up the total thickness of each member
+    t_f1 = 0;
+    t_f2 = 0;
+    t_w = 0;
+
+    for m = 1:child.nplies_f1
+        rowname = MaterialProperties.Properties.RowNames(child.layup_f1(m,1));
+        t_f1 = t_f1 + MaterialProperties.t(rowname);                
+    end
+
+    for m = 1:child.nplies_f2
+        rowname = MaterialProperties.Properties.RowNames(child.layup_f2(m,1));
+        t_f2 = t_f2 + MaterialProperties.t(rowname);                
+    end
+
+    for m = 1:child.nplies_w
+        rowname = MaterialProperties.Properties.RowNames(child.layup_w(m,1));
+        t_w = t_w + MaterialProperties.t(rowname);                
+    end
 end
