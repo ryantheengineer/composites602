@@ -4,7 +4,7 @@ numParents = length(parents);
 for j = 1:numParents
     for i = 1:size
         designNum(i) = 1 + floor(rand*numParents);
-        Score(i) = maximin(parents(designNum(i)),parents);
+        Score(i) = maximin(designNum(i),parents);
     end
     [~, index] = min(Score);
     winner(j) = parents(designNum(index));

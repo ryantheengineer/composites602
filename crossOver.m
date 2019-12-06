@@ -474,8 +474,17 @@ function [c1_layup_f1,c1_layup_f2,c1_layup_w,c2_layup_f1,c2_layup_f2,c2_layup_w]
     c1_layup_f2(1:halfsame,:) = c1_layup_f1(1:halfsame,:);
     c1_layup_w(1:halfsame,:) = c1_layup_f1(1:halfsame,:);
     
-    c1_layup_f2 = balance_layup(c1_layup_f2);
-    c1_layup_w = balance_layup(c1_layup_w);
+    if child1.nplies_f2 == 2
+        c1_layup_f2(2,:) = c1_layup_f2(1,:);
+    else
+        c1_layup_f2 = balance_layup(c1_layup_f2);
+    end
+    
+    if child1.nplies_w == 2
+        c1_layup_w(2,:) = c1_layup_w(1,:);
+    else
+        c1_layup_w = balance_layup(c1_layup_w);
+    end
 
     % Child 2
     halfsame = child2.nplies_same/2;
@@ -483,8 +492,17 @@ function [c1_layup_f1,c1_layup_f2,c1_layup_w,c2_layup_f1,c2_layup_f2,c2_layup_w]
     c2_layup_f2(1:halfsame,:) = c2_layup_f1(1:halfsame,:);
     c2_layup_w(1:halfsame,:) = c2_layup_f1(1:halfsame,:);
     
-    c2_layup_f2 = balance_layup(c2_layup_f2);
-    c2_layup_w = balance_layup(c2_layup_w);
+    if child2.nplies_f2 == 2
+        c2_layup_f2(2,:) = c2_layup_f2(1,:);
+    else
+        c2_layup_f2 = balance_layup(c2_layup_f2);
+    end
+    
+    if child2.nplies_w == 2
+        c2_layup_w(2,:) = c2_layup_w(1,:);
+    else
+        c2_layup_w = balance_layup(c2_layup_w);
+    end
     
 end
 

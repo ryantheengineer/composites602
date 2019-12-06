@@ -1,4 +1,4 @@
-function [fitnesses] = getFitness(design,designpop)
+function [fitnesses] = getFitness(design)
 % Fitness scoring function to determine how good a given design is, subject
 % to the design constraints. Outputs fitnesses, a vector of the individual
 % fitness measures of the objectives. This output is for a single design,
@@ -29,7 +29,7 @@ c_f2 = design.ybar;
 c = max(c_f1,c_f2);
 
 maxmoment = max_bending_moment(E_eq_bend,c,design.I); % Calculate the maximum bending moment for the cross-section
-moment_objective = -maxmoment; % Make moment_objective negative for maximin fitness? Not sure if this is necessary
+moment_objective = 1000000/maxmoment; % Make moment_objective negative for maximin fitness? Not sure if this is necessary
 
 %% Objective 2: Minimize weight
 weight_objective = get_weight(design.nplies_f1,design.nplies_f2,design.nplies_w,design.b_f1,design.b_f2,design.h_w,design.layup_f1,design.layup_f2,design.layup_w,design.A_f1,design.A_f2,design.A_w);
@@ -44,7 +44,7 @@ weight_objective = get_weight(design.nplies_f1,design.nplies_f2,design.nplies_w,
 
 
 %% Scale objectives to be on the same order of magnitude and combine into vector
-moment_scale = 1e6;
+moment_scale = 1;
 weight_scale = 1e3;
 
 moment_objective = moment_objective/moment_scale;

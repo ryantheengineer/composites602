@@ -124,8 +124,18 @@ halfsame = mutated_child.nplies_same/2;
 mutated_child.layup_f2(1:halfsame,:) = mutated_child.layup_f1(1:halfsame,:);
 mutated_child.layup_w(1:halfsame,:) = mutated_child.layup_f1(1:halfsame,:);
 
-mutated_child.layup_f2 = balance_layup(mutated_child.layup_f2);
-mutated_child.layup_w = balance_layup(mutated_child.layup_w);
+
+if mutated_child.nplies_f2 == 2
+    mutated_child.layup_f2(2,:) = mutated_child.layup_f2(1,:);
+else
+    mutated_child.layup_f2 = balance_layup(mutated_child.layup_f2);
+end
+
+if mutated_child.nplies_w == 2
+    mutated_child.layup_w(2,:) = mutated_child.layup_w(1,:);
+else
+    mutated_child.layup_w = balance_layup(mutated_child.layup_w);
+end
 
 
 %% 6. Mutate member length parameters
@@ -299,9 +309,23 @@ function [layup_f1,layup_f2,layup_w] = mutate_layup(child,MaterialProperties,alp
     end
     
     %% Enforce symmetry
-    layup_f1 = balance_layup(layup_f1);
-    layup_f2 = balance_layup(layup_f2);
-    layup_w  = balance_layup(layup_w);
+    if child.nplies_f1 == 2
+        layup_f1(2,:) = layup_f1(1,:);
+    else
+        layup_f1 = balance_layup(layup_f1);
+    end
+    
+    if child.nplies_f2 == 2
+        layup_f2(2,:) = layup_f2(1,:);
+    else
+        layup_f2 = balance_layup(layup_f2);
+    end
+    
+    if child.nplies_w == 2
+        layup_w(2,:) = layup_w(2,:);
+    else
+        layup_w  = balance_layup(layup_w);
+    end
 
 end
 
