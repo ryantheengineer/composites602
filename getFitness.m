@@ -1,4 +1,4 @@
-function [fitnesses] = getFitness(design)
+function [fitnesses] = getFitness(design,designpop)
 % Fitness scoring function to determine how good a given design is, subject
 % to the design constraints. Outputs fitnesses, a vector of the individual
 % fitness measures of the objectives. This output is for a single design,

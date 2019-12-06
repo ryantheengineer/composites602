@@ -1,16 +1,13 @@
-function [score] = maximin(design,designpop)
+function [score] = maximin(designidx,designpop)
 % Take in a beamdesign and calculate the maximin score against the
 % population of beamdesigns
 population = length(designpop);
-numobj = length(design.fitnesses);
+tempfitness = getFitness(designpop(designidx));
+numobj = size(tempfitness,1);
 
-for i = 1:population
-    if designpop(i).fitnesses == design.fitnesses
-        idx = i;
-    end
-end
+fitnesses = zeros(size(tempfitness),population);
 
-designpop(idx) = [];
+designpop(designidx) = [];
 
 minvals = zeros((population-1),numobj);
 
