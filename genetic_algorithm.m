@@ -1,6 +1,6 @@
-totalgeneration = 10;
-population = 10;
-numcompete = 2;
+totalgeneration = 50;
+population = 20;
+numcompete = 3;
 beta = 1;   % Beta for mutation function
 
 load('material_properties.mat');
