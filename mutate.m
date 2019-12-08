@@ -195,9 +195,9 @@ end
 
 function [child_nplies_f1,child_nplies_f2,child_nplies_w,child_nplies_same] = mutate_nplies(child,alpha)
     % Mutate nplies parameter values    
-    child_nplies_f1 = basicmutate(child.nplies_f1,2,50,alpha);
-    child_nplies_f2 = basicmutate(child.nplies_f2,2,50,alpha);
-    child_nplies_w  = basicmutate(child.nplies_w,2,50,alpha);
+    child_nplies_f1 = basicmutate(child.nplies_f1,2,750,alpha);
+    child_nplies_f2 = basicmutate(child.nplies_f2,2,750,alpha);
+    child_nplies_w  = basicmutate(child.nplies_w,2,750,alpha);
     
     nplies_set = [child_nplies_f1 child_nplies_f2 child_nplies_w];
     child_nplies_same = basicmutate(child.nplies_same,2,min(nplies_set),alpha);
