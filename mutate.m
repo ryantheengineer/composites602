@@ -1,6 +1,6 @@
 function [mutated_child] = mutate(child, currentGeneration, totalGen, beta, MaterialProperties)
 % switchThres = 0.4; % Can change this
-mutateThres = 0.1; % Can change this
+mutateThres = 0.2; % Can change this
 alpha = getalpha(currentGeneration,totalGen,beta);
 
 mutated_child = child;
@@ -195,9 +195,9 @@ end
 
 function [child_nplies_f1,child_nplies_f2,child_nplies_w,child_nplies_same] = mutate_nplies(child,alpha)
     % Mutate nplies parameter values    
-    child_nplies_f1 = basicmutate(child.nplies_f1,2,50,alpha);
-    child_nplies_f2 = basicmutate(child.nplies_f2,2,50,alpha);
-    child_nplies_w  = basicmutate(child.nplies_w,2,50,alpha);
+    child_nplies_f1 = basicmutate(child.nplies_f1,2,750,alpha);
+    child_nplies_f2 = basicmutate(child.nplies_f2,2,750,alpha);
+    child_nplies_w  = basicmutate(child.nplies_w,2,750,alpha);
     
     nplies_set = [child_nplies_f1 child_nplies_f2 child_nplies_w];
     child_nplies_same = basicmutate(child.nplies_same,2,min(nplies_set),alpha);
@@ -378,22 +378,28 @@ end
 
 function [t_f1,t_f2,t_w] = get_thicknesses(child,MaterialProperties)
 % Add up the total thickness of each member
-    t_f1 = 0;
-    t_f2 = 0;
-    t_w = 0;
+    tply = MaterialProperties.t(1);
+    
+    t_f1 = child.nplies_f1*tply;
+    t_f2 = child.nplies_f2*tply;
+    t_w  = child.nplies_w*tply;
 
-    for m = 1:child.nplies_f1
-        rowname = MaterialProperties.Properties.RowNames(child.layup_f1(m,1));
-        t_f1 = t_f1 + MaterialProperties.t(rowname);                
-    end
-
-    for m = 1:child.nplies_f2
-        rowname = MaterialProperties.Properties.RowNames(child.layup_f2(m,1));
-        t_f2 = t_f2 + MaterialProperties.t(rowname);                
-    end
-
-    for m = 1:child.nplies_w
-        rowname = MaterialProperties.Properties.RowNames(child.layup_w(m,1));
-        t_w = t_w + MaterialProperties.t(rowname);                
-    end
+%     t_f1 = 0;
+%     t_f2 = 0;
+%     t_w = 0;
+% 
+%     for m = 1:child.nplies_f1
+%         rowname = MaterialProperties.Properties.RowNames(child.layup_f1(m,1));
+%         t_f1 = t_f1 + MaterialProperties.t(rowname);                
+%     end
+% 
+%     for m = 1:child.nplies_f2
+%         rowname = MaterialProperties.Properties.RowNames(child.layup_f2(m,1));
+%         t_f2 = t_f2 + MaterialProperties.t(rowname);                
+%     end
+% 
+%     for m = 1:child.nplies_w
+%         rowname = MaterialProperties.Properties.RowNames(child.layup_w(m,1));
+%         t_w = t_w + MaterialProperties.t(rowname);                
+%     end
 end

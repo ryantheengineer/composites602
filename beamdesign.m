@@ -32,7 +32,7 @@ classdef beamdesign
             load('material_properties.mat');
             
             % Set the number of plies to be used in the flanges and the web
-            maxplies = 50;
+            maxplies = 750;
             obj.nplies_f1 = random_nplies(maxplies);
             obj.nplies_f2 = random_nplies(maxplies);
             obj.nplies_w = random_nplies(maxplies);
