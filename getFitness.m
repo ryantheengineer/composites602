@@ -53,7 +53,7 @@ weight_objective = get_weight(design.nplies_f1,design.nplies_f2,design.nplies_w,
 
 
 %                 x pos     shear
-load_8 = 1.0e+03*[      0,  -5.027;
+load_8 = 1.0e+03*[      0,   5.027;
                   0.02108,   5.408;
                   0.05645,   3.788;
                   0.06301,   2.652;
@@ -93,7 +93,7 @@ dmax_objective = 1/FS_deflection;
 
 %% Scale objectives to be on the same order of magnitude and combine into vector
 moment_scale = 1000;
-weight_scale = 1e3;
+weight_scale = 5e2;
 dmax_scale = 1e-4;
 
 moment_objective = moment_objective/moment_scale;

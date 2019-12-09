@@ -1,11 +1,17 @@
 clear all;
 close all;
 totalgeneration = 10;
-population = 50;
+population = 10;
 numcompete = 2;
 beta = 1;   % Beta for mutation function
 
 load('material_properties.mat');
+% load('startingdesigns.mat');
+% indices = randperm(length(keepdesigns),population);
+
+moment_scale = 1000;
+weight_scale = 5e2;
+dmax_scale = 1e-4; % MAKE SURE THESE ARE THE SAME AS IN GET_FITNESS
 
 figure(1);
 % allfit = [];
@@ -13,8 +19,10 @@ sizeval = 300;
 % Generate initial parents
 for i = 1:population
     Parents(i) = beamdesign();
+%     Parents(i) = keepdesigns(indices(i));
     [fitnesses] = getFitness(Parents(i));
-    scatter3(fitnesses(1),fitnesses(2),fitnesses(3),sizeval,[0 0 1],'.');
+    [FSfitnesses] = interpret_fitness(fitnesses,moment_scale,weight_scale,dmax_scale);
+    scatter3(FSfitnesses(1),FSfitnesses(2),FSfitnesses(3),sizeval,[0 0 1],'.');
     drawnow
     xlabel('Moment');
     ylabel('Weight');
@@ -52,7 +60,9 @@ for currentGeneration = 1:totalgeneration
     for i = 1:keepSize
         Parents(i) = eliSet(I(i));
         [fitnesses] = getFitness(Parents(i));
-        scatter3(fitnesses(1),fitnesses(2),fitnesses(3),sizeval,rgbvals,'.');
+        [FSfitnesses] = interpret_fitness(fitnesses,moment_scale,weight_scale,dmax_scale);
+        scatter3(FSfitnesses(1),FSfitnesses(2),FSfitnesses(3),sizeval,[0 0 1],'.');
+%         scatter3(fitnesses(1),fitnesses(2),fitnesses(3),sizeval,rgbvals,'.');
         drawnow
         if FitnessOutputs(I(i)) < 0
             ParetoDesigns(currentGeneration,i) = Parents(i);

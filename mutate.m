@@ -1,6 +1,6 @@
 function [mutated_child] = mutate(child, currentGeneration, totalGen, beta, MaterialProperties)
 % switchThres = 0.4; % Can change this
-mutateThres = 0.2; % Can change this
+mutateThres = 0.3; % Can change this
 alpha = getalpha(currentGeneration,totalGen,beta);
 
 mutated_child = child;
@@ -195,9 +195,11 @@ end
 
 function [child_nplies_f1,child_nplies_f2,child_nplies_w,child_nplies_same] = mutate_nplies(child,alpha)
     % Mutate nplies parameter values    
-    child_nplies_f1 = basicmutate(child.nplies_f1,2,750,alpha);
-    child_nplies_f2 = basicmutate(child.nplies_f2,2,750,alpha);
-    child_nplies_w  = basicmutate(child.nplies_w,2,750,alpha);
+    maxplies = 700;
+    minplies = 2;
+    child_nplies_f1 = basicmutate(child.nplies_f1,minplies,maxplies,alpha);
+    child_nplies_f2 = basicmutate(child.nplies_f2,minplies,maxplies,alpha);
+    child_nplies_w  = basicmutate(child.nplies_w,minplies,maxplies,alpha);
     
     nplies_set = [child_nplies_f1 child_nplies_f2 child_nplies_w];
     child_nplies_same = basicmutate(child.nplies_same,2,min(nplies_set),alpha);

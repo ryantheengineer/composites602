@@ -32,7 +32,7 @@ classdef beamdesign
             load('material_properties.mat');
             
             % Set the number of plies to be used in the flanges and the web
-            maxplies = 750;
+            maxplies = 700;
             obj.nplies_f1 = random_nplies(maxplies);
             obj.nplies_f2 = random_nplies(maxplies);
             obj.nplies_w = random_nplies(maxplies);
@@ -232,22 +232,27 @@ end
 
 function [t_f1,t_f2,t_w] = get_thicknesses(child,MaterialProperties)
 % Add up the total thickness of each member
-    t_f1 = 0;
-    t_f2 = 0;
-    t_w = 0;
-
-    for m = 1:child.nplies_f1
-        rowname = MaterialProperties.Properties.RowNames(child.layup_f1(m,1));
-        t_f1 = t_f1 + MaterialProperties.t(rowname);                
-    end
-
-    for m = 1:child.nplies_f2
-        rowname = MaterialProperties.Properties.RowNames(child.layup_f2(m,1));
-        t_f2 = t_f2 + MaterialProperties.t(rowname);                
-    end
-
-    for m = 1:child.nplies_w
-        rowname = MaterialProperties.Properties.RowNames(child.layup_w(m,1));
-        t_w = t_w + MaterialProperties.t(rowname);                
-    end
+    tply = MaterialProperties.t(1);
+    
+    t_f1 = child.nplies_f1*tply;
+    t_f2 = child.nplies_f2*tply;
+    t_w  = child.nplies_w*tply;
+%     t_f1 = 0;
+%     t_f2 = 0;
+%     t_w = 0;
+% 
+%     for m = 1:child.nplies_f1
+%         rowname = MaterialProperties.Properties.RowNames(child.layup_f1(m,1));
+%         t_f1 = t_f1 + MaterialProperties.t(rowname);                
+%     end
+% 
+%     for m = 1:child.nplies_f2
+%         rowname = MaterialProperties.Properties.RowNames(child.layup_f2(m,1));
+%         t_f2 = t_f2 + MaterialProperties.t(rowname);                
+%     end
+% 
+%     for m = 1:child.nplies_w
+%         rowname = MaterialProperties.Properties.RowNames(child.layup_w(m,1));
+%         t_w = t_w + MaterialProperties.t(rowname);                
+%     end
 end
