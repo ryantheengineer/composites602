@@ -195,7 +195,7 @@ end
 
 function [child_nplies_f1,child_nplies_f2,child_nplies_w,child_nplies_same] = mutate_nplies(child,alpha)
     % Mutate nplies parameter values    
-    maxplies = 700;
+    maxplies = 100;
     minplies = 2;
     child_nplies_f1 = basicmutate(child.nplies_f1,minplies,maxplies,alpha);
     child_nplies_f2 = basicmutate(child.nplies_f2,minplies,maxplies,alpha);
@@ -238,7 +238,8 @@ function [layup_f1,layup_f2,layup_w] = mutate_layup(child,MaterialProperties,alp
     layup_f2 = child.layup_f2;
     layup_w  = child.layup_w;
     
-    allowed_angles = [0 15 30 45 60 75 90 -15 -30 -45 -60 -75]';
+%     allowed_angles = [0 15 30 45 60 75 90 -15 -30 -45 -60 -75]';
+    allowed_angles = [0 45 90 -45]';
     materials = MaterialProperties.Properties.RowNames;
     
     maxangle_ind = length(allowed_angles);

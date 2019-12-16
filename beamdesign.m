@@ -32,7 +32,7 @@ classdef beamdesign
             load('material_properties.mat');
             
             % Set the number of plies to be used in the flanges and the web
-            maxplies = 700;
+            maxplies = 100;
             obj.nplies_f1 = random_nplies(maxplies);
             obj.nplies_f2 = random_nplies(maxplies);
             obj.nplies_w = random_nplies(maxplies);
@@ -180,7 +180,8 @@ function [layup] = random_layup(nplies,Properties_mat)
     layup = cell(nplies,4);
     
     % Define the allowable ply angles
-    allowed_angles = [0 15 30 45 60 75 90 -15 -30 -45 -60 -75]';
+    allowed_angles = [0 45 90 -45]';
+%     allowed_angles = [0 15 30 45 60 75 90 -15 -30 -45 -60 -75]';
 
     % Create a symmetric vector of ply angle layup
     angles = zeros(nplies,1);
