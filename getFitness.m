@@ -127,7 +127,7 @@ function [section_weight] = get_weight(nplies_f1,nplies_f2,nplies_w,b_f1,b_f2,h_
         Aply = b_f1*cell2mat(layup_f1(i,3));
         w_f1 = w_f1 + Aply*cell2mat(layup_f1(i,4));
     end
-    w_f1 = w_f1/A_f1;
+%     w_f1 = w_f1/A_f1;
     
     % Lower flange
     w_f2 = 0;
@@ -135,7 +135,7 @@ function [section_weight] = get_weight(nplies_f1,nplies_f2,nplies_w,b_f1,b_f2,h_
         Aply = b_f2*cell2mat(layup_f2(i,3));
         w_f2 = w_f2 + Aply*cell2mat(layup_f2(i,4));
     end
-    w_f2 = w_f2/A_f2;
+%     w_f2 = w_f2/A_f2;
     
     % Web
     w_w = 0;
@@ -143,7 +143,7 @@ function [section_weight] = get_weight(nplies_f1,nplies_f2,nplies_w,b_f1,b_f2,h_
         Aply = h_w*cell2mat(layup_w(i,3));
         w_w = w_w + Aply*cell2mat(layup_w(i,4));
     end
-    w_w = w_w/A_w;
+%     w_w = w_w/A_w;
     
     % Total
     section_weight = w_f1 + w_f2 + w_w;
