@@ -92,8 +92,8 @@ dmax_objective = 1/FS_deflection;
 
 
 %% Scale objectives to be on the same order of magnitude and combine into vector
-moment_scale = 1000;
-weight_scale = 1e3;
+moment_scale = 500;
+weight_scale = 2;
 dmax_scale = 1e-4;
 
 moment_objective = moment_objective/moment_scale;
